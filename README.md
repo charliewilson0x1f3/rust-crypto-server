@@ -19,7 +19,7 @@ This is run on Linux with the following dependencies:
 - openssl
 - cargo (rust)
 
-The server implementation is up to you. I recommend Apache. Place the project in /var/www. In the directory "rust," cd into each subdirectory besides "lib" (lib is where custom shared libraries are) and run "./load.sh" (compiles rust and moves the executables to the cgi-bin - make sure cargo is in PATH). Each of those directories is an independent Rust project, and they all have proper "load" scripts. If needed, enable CGI scripts with the server, and point "/cgi-bin/" to "var/www/cgi-bin." Also, any file or directory needs correct permissions to be accessed by the server.
+The server implementation is up to you. I recommend Apache. Place the project in the "/var/www" directory. In the directory "rust," cd into each subdirectory besides "lib" (lib is where custom shared libraries are) and run "./load.sh" (compiles rust and moves the executables to the cgi-bin - make sure cargo is in PATH). Each of those directories is an independent Rust project, and they all have proper "load.sh" scripts. If needed, enable CGI scripts with the server, and point "/cgi-bin/" to "var/www/cgi-bin." Also, any file or directory needs correct permissions to be accessed by the server. Be sure to properly configure https.
 The administrator username is always "admin." I left the admin with "Security2@" as the password. You can change this by deleting "server/passwords/admin" and signing up as admin again. Just make sure you move the generated "server/requests/admin" to "server/passwords/admin."
 
 ## What this project currently needs
