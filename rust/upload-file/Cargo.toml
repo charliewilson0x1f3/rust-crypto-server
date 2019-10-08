@@ -1,0 +1,8 @@
+[package]
+name = "upload-file"
+version = "0.1.0"
+authors = ["root"]
+edition = "2018"
+
+[dependencies]
+auth = { path = "../lib/auth" }

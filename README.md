@@ -26,3 +26,4 @@ The administrator username is always "admin." I left the admin with "Security2@"
 - I could not find any good rust libraries for RSA, so it is broken on my server. This means the symmetric key for data transfer is sent unencrypted. RSA support needs to be added to the server for it to work. The framework is there, and client side is ready to go (just uncomment). A quick fix could be to have a python script (or whatever chosen language has good RSA libraries) on the server side to handle the data transfer.
 - Code cleanup... I wrote the code in a very short amount of time, so there may be some long one-liners, and the client-side code is a bit messy (promise chaining for the crypto subtle portions may help).
 - Peer review. Security people, please tear this code to shreds if it makes you happy!
+

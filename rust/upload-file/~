@@ -1,0 +1,173 @@
+use std::env;
+use std::path::Path;
+use std::fs;
+use std::collections::HashMap;
+
+fn valid_cookie(cookie: String) -> String
+{
+	// see if cookie exists
+	let paths = fs::read_dir("./cookies").unwrap();
+
+	for path in paths
+	{
+    		let filename: String = path.unwrap().path().display().to_string();
+		let real_cookie = fs::read_to_string(&filename).expect("Unable to read file (cookie)");
+		if cookie == real_cookie
+		{
+			let spath: Vec<&str> = filename.split("/").collect();
+			if spath.len() == 3
+			{
+				return spath[2].to_string();
+			}
+		}
+	}
+	return "ERROR".to_string();
+}
+
+fn unauthorized() {
+	println!("Content-type: text/html");
+        println!("");
+        println!("
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Unauthorized...</title>
+		<link rel=\"stylesheet\" href=\"/css/style.css\">
+		<meta http-equiv=\"refresh\" content=\"0; URL='https://charlie-crypto-server.chickenkiller.
+com/session-expired.html'\" />
+		<meta charset=\"UTF-8\">
+	</head>
+	<body bgcolor=\"black\">
+	</body>
+</html>");
+}
+
+fn response() {
+	println!("Content-type: text/html");
+        println!("");
+	println!("
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Upload</title>
+		<link rel=\"stylesheet\" href=\"/css/style.css\">
+		<script src=\"https://code.jquery.com/jquery-1.10.2.js\"></script>
+		<meta charset=\"UTF-8\">
+	</head>
+	<body bgcolor=\"black\">
+	<div id=\"loading\" style=\"display:none\"></div>
+	<script>
+		function random_string(length) {{
+			let random = \"\";
+			for(let i = 0; i < length; i++) {{
+				random += String.fromCharCode(Math.floor((Math.random() * 25) + 97));
+			}}
+    			return random;
+		}}
+
+		function generate_aes_key() {{
+			window.crypto.subtle.generateKey(
+			{{
+				name: \"AES-GCM\",
+				length: 256,
+			}},
+			true,
+			[\"encrypt\", \"decrypt\"]
+			).then(function(key) {{
+				return key;
+			}});
+		}}
+
+		async function key_as_buf(key) {{
+			const exported = await window.crypto.subtle.exportKey(\"raw\", key).then(function(buf) {{
+				return new Uint8Array(buf);
+			}}
+		}}
+
+		function process_file() {{
+			document.getElementById(\"loading\").style.display = \"block\";
+			var file = document.getElementById(\"upload-file\").files[0];
+    			if(file) {{
+				var reader = new FileReader();
+				reader.readAsArrayBuffer(file);
+				reader.onload = function (evt) {{
+					// create AES key
+					var key = generate_aes_key();
+					var key_buf = key_as_buf(key);
+					
+					// send AES key
+					var xhr_key = new XMLHttpRequest();
+					xhr_key.open(\"POST\", \"/cgi-bin/upload.cgi\");
+					xhr_key.setRequestHeader(\"filename\", file.name + \".key\");
+					xhr_key.send(key_buf);
+					xhr_key.onreadystatechange = function() {{
+       						if(xhr_key.readyState == 4) {{
+							if(xhr_key.responseText.includes(\"upload-success.html\")) {{
+								// send file
+								var contents = evt.target.result;
+								var xhr = new XMLHttpRequest();
+								xhr.open(\"POST\", \"/cgi-bin/upload.cgi\");
+								xhr.setRequestHeader(\"filename\", file.name);
+								xhr.send(contents);
+								xhr.onreadystatechange = function() {{
+       									if(xhr.readyState == 4) {{
+        									window.location = xhr.responseText;
+									}}
+								}}
+							}}
+							else {{
+								alert(\"ERROR: unable to upload file...\");
+							}}
+						}}
+					}}
+				}}
+				reader.onerror = function(evt) {{
+					document.getElementById(\"loading\").style.display = \"none\";
+					alert(\"ERROR: unable to upload file...\");
+				}}
+			}}
+			else {{
+				document.getElementById(\"loading\").style.display = \"none\";
+				alert(\"ERROR: unable to upload file...\");
+			}}
+		}}
+	</script>
+	
+	<center>
+	<div>
+		<form action=\"/cgi-bin/upload.cgi\" method=\"post\" enctype=\"multipart/form-data\">
+		<!--form onsubmit=\"process_file()\"-->
+			<p>Choose File: <input id=\"upload-file\" type=\"file\" name=\"file\" /></p>
+		</form>
+		<p><input type=\"submit\" onclick=\"process_file()\" value=\"Upload\" /></p>
+		<a href=\"/cgi-bin/start.cgi\">Back</a>
+	</div>
+	</center>
+	</body>
+</html>");
+}
+
+fn main() {
+	let path = Path::new("/var/www/server");
+        assert!(env::set_current_dir(&path).is_ok()); 
+
+        let mut cookie = "".to_string();
+        // extract cookie
+	let env_vars: HashMap<String, String> = std::env::vars().collect();
+        for (key, value) in env_vars.clone()
+        {
+                if key == "HTTP_COOKIE"
+                {
+                	cookie = value;
+                }
+        }
+	let username = valid_cookie(cookie);
+	if username != "ERROR".to_string()
+	{
+		response();
+	}
+	else
+	{
+		unauthorized();
+	}
+}

@@ -1,0 +1,13 @@
+[package]
+name = "login"
+version = "0.1.0"
+authors = ["Charlie Wilson"]
+edition = "2018"
+
+[dependencies]
+auth = { path = "../lib/auth" }
+file-to-bytes = { path = "../lib/file-to-bytes" }
+unicode = { path = "../lib/unicode" }
+rand = "0.5.5"
+sha2 = "0.8.0"
+chrono = "0.4"

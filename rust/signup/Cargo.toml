@@ -1,0 +1,10 @@
+[package]
+name = "signup"
+version = "0.1.0"
+authors = ["charliewilson0xe9"]
+edition = "2018"
+
+[dependencies]
+auth = { path = "../lib/auth" }
+unicode = { path = "../lib/unicode" }
+sha2 = "0.8.0"

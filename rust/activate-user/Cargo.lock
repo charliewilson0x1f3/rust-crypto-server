@@ -1,0 +1,16 @@
+[[package]]
+name = "activate-user"
+version = "0.1.0"
+dependencies = [
+ "auth 0.1.0",
+ "unicode 0.1.0",
+]
+
+[[package]]
+name = "auth"
+version = "0.1.0"
+
+[[package]]
+name = "unicode"
+version = "0.1.0"
+

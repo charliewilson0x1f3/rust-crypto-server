@@ -1,0 +1,13 @@
+[package]
+name = "upload"
+version = "0.1.0"
+authors = ["charliewilson0xe9"]
+edition = "2018"
+
+[dependencies]
+auth = { path = "../lib/auth" }
+file-to-bytes = { path = "../lib/file-to-bytes" }
+#load-private-key = { path = "../lib/load-private-key" }
+unicode = { path = "../lib/unicode" }
+rust-crypto = "0.2.36"
+#rsa = "0.1.3"

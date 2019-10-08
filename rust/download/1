@@ -1,0 +1,126 @@
+use std::env;
+use std::path::Path;
+use std::fs;
+use std::collections::HashMap;
+use std::io::{stdin, stdout, Read, Write};
+use std::str;
+use std::fs::File;
+
+fn valid_cookie(cookie : String) -> String
+{
+	// see if cookie exists
+	let paths = fs::read_dir("./cookies").unwrap();
+
+	for path in paths
+	{
+    		let filename: String = path.unwrap().path().display().to_string();
+		let real_cookie = fs::read_to_string(&filename).expect("Unable to read file (cookie)");
+		if cookie == real_cookie
+		{
+			let spath: Vec<&str> = filename.split("/").collect();
+			if spath.len() == 3
+			{
+				return spath[2].to_string();
+			}
+		}
+	}
+	return "ERROR".to_string();
+}
+
+fn unauthorized() {
+	println!("Content-type: text/html");
+        println!("");
+        println!("
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Unauthorized...</title>
+		<link rel=\"stylesheet\" href=\"/css/style.css\">
+		<meta http-equiv=\"refresh\" content=\"0; URL='https://charlie-crypto-server.chickenkiller.com/session_expired.html'\" />
+		<meta charset=\"UTF-8\">
+	</head>
+	<body bgcolor=\"black\">
+	</body>
+</html>");
+}
+
+fn download_error() {
+	println!("Content-type: text/html");
+        println!("");
+        println!("
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Error...</title>
+		<link rel=\"stylesheet\" href=\"/css/style.css\">
+		<meta http-equiv=\"refresh\" content=\"0; URL='https://charlie-crypto-server.chickenkiller.com/download-error.html'\" />
+		<meta charset=\"UTF-8\">
+	</head>
+	<body bgcolor=\"black\">
+	</body>
+</html>");
+}
+
+fn file_to_bytes(filename: String) -> Vec<u8> {
+	let mut file=File::open(&filename).unwrap();
+	let mut buf = vec![];
+	file.read_to_end(&mut buf).unwrap();
+	return buf;
+}
+
+fn download(filename : String, username : String) {
+	let path = "files/".to_string() + &username + "/" + &filename;
+	if Path::new(&path).exists()
+	{
+		let contents = file_to_bytes(path);
+		
+		println!("Content-type: multipart/form-data");
+        	println!("");
+		for byte in contents
+		{
+			stdout().write(byte);
+		}
+		//stdout().write(&contents).expect("Error... Failed to write file");
+	}
+	else
+	{
+		download_error();
+	}
+}
+
+fn main() {
+	let path = Path::new("/var/www/server");
+        assert!(env::set_current_dir(&path).is_ok()); 
+
+        let mut cookie = "".to_string();
+	let mut filename = "".to_string();
+        // extract cookie and filename
+        let env_vars: HashMap<String, String> = std::env::vars().collect();
+	for (key, value) in env_vars.clone()
+        {
+                if key == "HTTP_COOKIE"
+                {
+                	cookie = value.clone();
+                }
+		if key == "HTTP_FILENAME"
+		{
+			filename = value.clone();
+		}
+        }
+
+	//let content_length: usize = env_vars.get("CONTENT_LENGTH").and_then(|cl| cl.parse::<usize>().ok()).unwrap_or(0);
+	//let mut request = vec![0; content_length];
+	//stdin().read_exact(&mut request).unwrap();
+
+	//println!("{}", String::from_utf8_lossy(&request));
+	
+	let username = valid_cookie(cookie);
+	if username != "ERROR".to_string()
+	{
+		download(filename, username);
+	}
+	else
+	{
+		unauthorized();
+	}
+}

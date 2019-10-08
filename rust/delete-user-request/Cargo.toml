@@ -1,0 +1,9 @@
+[package]
+name = "delete-user-request"
+version = "0.1.0"
+authors = ["root"]
+edition = "2018"
+
+[dependencies]
+auth = { path = "../lib/auth" }
+unicode = { path = "../lib/unicode" }

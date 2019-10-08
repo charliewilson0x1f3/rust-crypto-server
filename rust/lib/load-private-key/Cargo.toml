@@ -1,0 +1,9 @@
+[package]
+name = "load-private-key"
+version = "0.1.0"
+authors = ["root"]
+edition = "2018"
+
+[dependencies]
+rsa = "0.1.3"
+num-bigint = { version = "0.4", features = ["rand", "i128", "u64_digit", "prime", "zeroize"], package = "num-bigint-dig" }

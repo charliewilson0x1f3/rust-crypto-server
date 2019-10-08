@@ -1,0 +1,117 @@
+use std::env;
+use std::path::Path;
+use std::fs;
+use std::collections::HashMap;
+use std::process::Command;
+
+fn valid_cookie(cookie: String) -> String
+{
+	// see if cookie exists
+	let paths = fs::read_dir("./cookies").unwrap();
+
+	for path in paths
+	{
+    		let filename: String = path.unwrap().path().display().to_string();
+		let real_cookie = fs::read_to_string(&filename).expect("Unable to read file (cookie)");
+		if cookie == real_cookie
+		{
+			let spath: Vec<&str> = filename.split("/").collect();
+			if spath.len() == 3
+			{
+				return spath[2].to_string();
+			}
+		}
+	}
+	return "ERROR".to_string();
+}
+
+fn activate_user(username : String) {
+	let command = "mv requests/" + &username + " passwords/";
+	Command::new("sh")
+        	.arg("-c")
+        	.arg(&command)
+        	.output()
+        	.expect("failed to activate user...");
+}
+
+fn unauthorized() {
+	println!("Content-type: text/html");
+        println!("");
+        println!("
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Unauthorized...</title>
+		<link rel=\"stylesheet\" href=\"/css/style.css\">
+		<meta http-equiv=\"refresh\" content=\"0; URL='https://charlie-crypto-server.chickenkiller.
+com/session-expired.html'\" />
+		<meta charset=\"UTF-8\">
+	</head>
+	<body bgcolor=\"black\">
+	</body>
+</html>");
+}
+
+fn response() {
+	println!("Content-type: text/html");
+        println!("");
+	println!("
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Redirecting...</title>
+		<link rel=\"stylesheet\" href=\"/css/style.css\">
+		<meta http-equiv=\"refresh\" content=\"0; URL='https://charlie-crypto-server.chickenkiller.
+com/cgi-bin/start.cgi'\" />
+		<meta charset=\"UTF-8\">
+	</head>
+	<body bgcolor=\"black\">	
+
+	</body>
+</html>");
+}
+
+fn main() {
+	let path = Path::new("/var/www/server");
+        assert!(env::set_current_dir(&path).is_ok()); 
+
+        let mut cookie = "".to_string();
+	let mut query = "".to_string();
+        // extract cookie
+	let env_vars: HashMap<String, String> = std::env::vars().collect();
+        for (key, value) in env_vars.clone()
+        {
+                if key == "HTTP_COOKIE"
+                {
+                	cookie = value.clone();
+                }
+		if key == "QUERY_STRING"
+                {
+                        query = value.clone();
+                }
+        }
+        let queries: Vec<&str> = query.split("&").collect();
+        let mut username = "".to_string();
+        
+        if queries.len() == 2
+        {
+		let username_vec: Vec<&str> = queries[0].split("=").collect();
+                if username_vec.len() == 2
+                {
+                        if username_vec[0] == "username"
+                        {
+                                username = username_vec[1].to_string();
+                        }
+                }
+	}
+
+	if valid_cookie(cookie) == "admin".to_string()
+	{
+		activate_user(username);
+		response();
+	}
+	else
+	{
+		unauthorized();
+	}
+}

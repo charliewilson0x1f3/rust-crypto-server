@@ -1,0 +1,8 @@
+[package]
+name = "start"
+version = "0.1.0"
+authors = ["charliewilson0xe9"]
+edition = "2018"
+
+[dependencies]
+auth = { path = "../lib/auth" }

@@ -1,0 +1,10 @@
+[package]
+name = "download"
+version = "0.1.0"
+authors = ["root"]
+edition = "2018"
+
+[dependencies]
+auth = { path = "../lib/auth" }
+file-to-bytes = { path = "../lib/file-to-bytes" }
+byteorder = "1.3.1"
