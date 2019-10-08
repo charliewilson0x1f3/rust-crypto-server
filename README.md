@@ -27,3 +27,17 @@ The administrator username is always "admin." I left the admin with "Security2@"
 - Code cleanup... I wrote the code in a very short amount of time, so there may be some long one-liners, and the client-side code is a bit messy (promise chaining for the crypto subtle portions may help).
 - Peer review. Security people, please tear this code to shreds if it makes you happy!
 
+## Signup
+![alt text](/example-images/signup-view.png)
+
+## Login
+![alt text](/example-images/login-view.png)
+
+## Basic User
+![alt text](/example-images/main-view.png)
+
+## Upload
+![alt text](/example-images/upload-view.png)
+
+## Admin
+![alt text](/example-images/admin-view.png)
